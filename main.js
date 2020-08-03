@@ -6,13 +6,18 @@ results.appendChild(pokeDiv);
 
 
 const searchPokemon = async (pokemonId = 3) => {
-  const { data } = await axios.get(`http://pokeapi.co/api/v2/pokemon/${pokemonId}`);
-  let pokeName = data.name;
-  let pokeWeight = data.weight;
-  let pokeHeight = data.height;
-  let frontImgSrc = data.sprites.front_default;
-  let backImgSrc = data.sprites.back_default;
-  makeDiv(pokeName, pokeHeight, pokeWeight, frontImgSrc, backImgSrc);
+  try {
+    const { data } = await axios.get(`http://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+    let pokeName = data.name;
+    let pokeWeight = data.weight;
+    let pokeHeight = data.height;
+    let frontImgSrc = data.sprites.front_default;
+    let backImgSrc = data.sprites.back_default;
+    makeDiv(pokeName, pokeHeight, pokeWeight, frontImgSrc, backImgSrc);
+  }
+  catch (error) {
+    alert("Pokemon not found")
+  }
 }
 
 
