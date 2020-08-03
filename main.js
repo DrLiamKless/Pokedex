@@ -1,21 +1,38 @@
-let serachButton = document.getElementById("searchButon");
+let searchButton = document.getElementById("searchButon");
 let input = document.getElementById("search");
-let results = document.getElementById("results")
+let results = document.getElementById("results");
+let pokeDiv = document.createElement("div");
+results.appendChild(pokeDiv);
 
 
 const searchPokemon = async (pokemonId = 3) => {
   const { data } = await axios.get(`http://pokeapi.co/api/v2/pokemon/${pokemonId}`);
-  let name = data.name;
-  let weight = data.weight;
-  let height = data.height;
-  let frontImg = data.sprites.front_default;
-  let pokeDiv = document.createElement("div")
+  let pokeName = data.name;
+  let pokeWeight = data.weight;
+  let pokeHeight = data.height;
+  let frontImgSrc = data.sprites.front_default;
+  let backImgSrc = data.sprites.back_default;
+  makeDiv(pokeName, pokeHeight, pokeWeight, frontImgSrc, backImgSrc);
+}
 
-  pokeDiv.innerHTML = "<img src =" + frontImg + ">" + name + "'s Height is " + height + " and weight is " + weight
-  results.appendChild(pokeDiv)
+
+const makeDiv = (name, height, weight, frontSrc, backSrc) => {
+  const htmlText = `
+  <div class="pokemonContainer">
+  <div>Name: ${name} </div> 
+  <div>height: ${height}</div>
+  <div>weight: ${weight}</div>
+  <div>picture: <img id="pokeImg" src="${frontSrc}" </div>`;
+  pokeDiv.innerHTML = htmlText;
+
+  let pokeImg = document.getElementById("pokeImg")
+  pokeImg.addEventListener("mouseover", () => pokeImg.src = backSrc)
+  pokeImg.addEventListener("mouseout", () => pokeImg.src = frontSrc)
 
 
-};
+}
 
-serachButton.addEventListener("click", () => searchPokemon(input.value))
+
+searchButton.addEventListener("click", () => searchPokemon(input.value))
+
 
