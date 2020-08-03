@@ -16,7 +16,9 @@ const searchPokemon = async (pokemonId = 3) => {
     makeDiv(pokeName, pokeHeight, pokeWeight, frontImgSrc, backImgSrc);
   }
   catch (error) {
-    alert("Pokemon not found")
+    ErrorDiv = document.createElement("div");
+    results.appendChild(ErrorDiv)
+    ErrorDiv.innerHTML = "Pokemon not found"
   }
 }
 
