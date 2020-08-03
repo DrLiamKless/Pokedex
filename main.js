@@ -17,15 +17,17 @@ const searchPokemon = async (pokemonId = 3) => {
     let backImgSrc = data.sprites.back_default;
 
     makeDiv(pokeName, pokeHeight, pokeWeight, types, frontImgSrc, backImgSrc);
+    input.value = "";
+    input.focus();
   }
   catch (error) {
     console.log(error)
     pokError = document.createElement("div")
-    pokError.id = "Error"
+    pokError.className = "Error"
     pokError.innerHTML = "Pokemon not found"
     pokeDiv.appendChild(pokError);
     setTimeout(() => {
-      document.getElementById("Error").innerHTML = '';
+      pokeDiv.innerHTML = ''
     }, 2000);
 
   }
@@ -58,6 +60,8 @@ const makeTypeList = (nameList) => {
     item.className = "sameTypePoke";
     sameTypeList.appendChild(item);
     item.innerText += x
+    // add the load new pokemon event
+    item.addEventListener("click", () => searchPokemon(x));
   }
 }
 
@@ -88,7 +92,7 @@ const makeDiv = (name, height, weight, types, frontSrc, backSrc) => {
   //  defininig the press on item event
   let typeItem = document.getElementsByTagName("li")
   for (let x of typeItem) {
-    x.addEventListener("mousedown", () => PokemonByType(x.innerText))
+    x.addEventListener("click", () => PokemonByType(x.innerText))
   }
 }
 
