@@ -5,6 +5,9 @@ let searchButton = document.getElementById("searchButon");
 let input = document.getElementById("search");
 let results = document.getElementById("results");
 let pokeDiv = document.createElement("div");
+let errorDiv = document.getElementById("errorDiv")
+let chainButton = document.getElementById("chainSearchButton");
+let chainSearch = document.getElementById("chainSearch")
 results.appendChild(pokeDiv);
 
 // Defining the searchPokemon App:
@@ -56,12 +59,50 @@ const searchPokemon = (pokemonId = 3) => {
       pokError = document.createElement("div");
       pokError.className = "Error";
       pokError.innerHTML = "Pokemon not found";
-      pokeDiv.appendChild(pokError);
+      errorDiv.appendChild(pokError);
       setTimeout(() => {
-        pokeDiv.innerHTML = "";
+        errorDiv.innerHTML = "";
       }, 2000);
     });
+
+// Bounus 2 - defining the get evoloution chain function:
+const getPokeChain = async (id) => {
+  try{
+    const pokeSpecies = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}/`);
+    let chainUrl = pokeSpecies.data.evolution_chain.url
+    const chainEvolutionData = await axios.get(chainUrl);
+    let chainEvolution = chainEvolutionData.data.chain;
+    let pokeInChain = []
+   
+    const getNamesInChain = function (object) {
+      pokeInChain.push(object.species.name);
+      if (object.evolves_to[0]) {
+        getNamesInChain(object.evolves_to[0])
+      } else {
+        let chainList = document.getElementById("chainList");
+        chainList.innerText = "Pokemon's evolve chain:"
+        pokeInChain.forEach(element => {
+          let chainItem = document.createElement("li");
+          chainItem.className = "Evolver";
+          chainList.appendChild(chainItem);
+          chainItem.innerText = element;
+        } )  
+      }
+      let chainItems = document.getElementsByClassName("Evolver");
+      for (let i of chainItems) {
+        i.addEventListener("click", () => searchPokemon(i.innerText));
+      }
+    };  
+    getNamesInChain(chainEvolution);
+  }
+  catch(error){
+    console.log(error)
+  }
 };
+chainButton.addEventListener("click", () => getPokeChain(pokemonId));
+  };
+
+
 
 // defining the get by type function:
 const pokemonByType = async (type) => {
@@ -80,7 +121,7 @@ const pokemonByType = async (type) => {
     console.log(error);
   }
 };
-// defining rthe function that creates the type list
+// defining the function that creates the type list
 const makeTypeList = (nameList) => {
   let sameTypeList = document.getElementById("sameTypeList");
   sameTypeList.innerText = "";
@@ -109,8 +150,9 @@ const makeDiv = (name, height, weight, types, frontSrc, backSrc) => {
   <div>Height: ${height}</div>
   <div>Weight: ${weight}</div>
   <div> <ul> Types: <li> ${pokeType} </li> </ul> </div>
-  <div>picture: <img id="pokeImg" src="${frontSrc}" </div>
-  <ul id="sameTypeList"></ul>`;
+  <ul id="sameTypeList"></ul>
+  <ul id="chainList"></ul>
+  <div>picture: <img id="pokeImg" src="${frontSrc}" </div>`;
   pokeDiv.innerHTML = htmlText;
 
   // creating the flipping on hover
