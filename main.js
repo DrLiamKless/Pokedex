@@ -99,7 +99,7 @@ const getPokeChain = async (id) => {
     console.log(error)
   }
 };
-chainButton.addEventListener("click", () => getPokeChain(pokemonId));
+chainButton.onclick = () => getPokeChain(pokemonId);
   };
 
 
