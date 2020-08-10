@@ -23,7 +23,7 @@ results.appendChild(pokeDiv);
 //     let frontImgSrc = data.sprites.front_default;
 //     let backImgSrc = data.sprites.back_default;
 
-//     makeDiv(pokeName, pokeHeight, pokeWeight, types, frontImgSrc, backImgSrc);
+//     makePokadexScreen(pokeName, pokeHeight, pokeWeight, types, frontImgSrc, backImgSrc);
 //     input.value = "";
 //     input.focus();
 //   } catch (error) {
@@ -50,7 +50,7 @@ const searchPokemon = (pokemonId = 3) => {
       let frontImgSrc = data.sprites.front_default;
       let backImgSrc = data.sprites.back_default;
 
-      makeDiv(pokeName, pokeHeight, pokeWeight, types, frontImgSrc, backImgSrc);
+      makePokadexScreen(pokeName, pokeHeight, pokeWeight, types, frontImgSrc, backImgSrc);
       input.value = "";
       input.focus();
     })
@@ -66,41 +66,47 @@ const searchPokemon = (pokemonId = 3) => {
     });
 
 // Bounus 2 - defining the get evoloution chain function:
-const getPokeChain = async (id) => {
-  try{
+  const getPokemonEvolutionChain = async (id) => {
+    try{
     const pokeSpecies = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokemonId}/`);
     let chainUrl = pokeSpecies.data.evolution_chain.url
     const chainEvolutionData = await axios.get(chainUrl);
     let chainEvolution = chainEvolutionData.data.chain;
-    let pokeInChain = []
-   
-    const getNamesInChain = function (object) {
-      pokeInChain.push(object.species.name);
-      if (object.evolves_to[0]) {
-        getNamesInChain(object.evolves_to[0])
-      } else {
-        let chainList = document.getElementById("chainList");
-        chainList.innerText = "Pokemon's evolve chain:"
-        pokeInChain.forEach(element => {
-          let chainItem = document.createElement("li");
-          chainItem.className = "Evolver";
-          chainList.appendChild(chainItem);
-          chainItem.innerText = element;
-        } )  
-      }
+    let pokemonsNamesInChain = []
+
+      const getNamesInChain = (object) => {
+        pokemonsNamesInChain.push(object.species.name);
+        if (object.evolves_to[0]) {
+          getNamesInChain(object.evolves_to[0])
+        } else {
+          let listOfEvolutionChain = document.getElementById("listOfEvolutionChain");
+          listOfEvolutionChain.innerText = "Pokemon's evolve chain:"
+          pokemonsNamesInChain.forEach(async pokemonName => {
+            let chainItem = document.createElement("li");
+            chainItem.className = "Evolver";
+            listOfEvolutionChain.appendChild(chainItem);
+            chainItem.innerText = pokemonName;
+            let evolverImg = document.createElement("img");
+            evolverImg.className = "evolverImg";
+            const { data } = await axios.get(`http://pokeapi.co/api/v2/pokemon/${pokemonName}`)
+            let evolverImgUrl = data.sprites.front_default;
+            evolverImg.src = evolverImgUrl;
+            chainItem.appendChild(evolverImg);
+          })  
+        }
       let chainItems = document.getElementsByClassName("Evolver");
-      for (let i of chainItems) {
-        i.addEventListener("click", () => searchPokemon(i.innerText));
-      }
-    };  
+        for (let chainItem of chainItems) {
+          chainItem.addEventListener("click", () => searchPokemon(chainItem.innerText));
+        }
+      };  
     getNamesInChain(chainEvolution);
-  }
-  catch(error){
+    }
+    catch(error){
     console.log(error)
-  }
-};
-chainButton.onclick = () => getPokeChain(pokemonId);
+    }
   };
+chainButton.onclick = () => getPokemonEvolutionChain(pokemonId);
+};
 
 
 
@@ -137,7 +143,7 @@ const makeTypeList = (nameList) => {
 };
 
 // defining the function that creates the div
-const makeDiv = (name, height, weight, types, frontSrc, backSrc) => {
+const makePokadexScreen = (name, height, weight, types, frontSrc, backSrc) => {
   let typesArr = [];
   types.forEach((element) => {
     typesArr.push(element.type.name);
@@ -151,7 +157,7 @@ const makeDiv = (name, height, weight, types, frontSrc, backSrc) => {
   <div>Weight: ${weight}</div>
   <div> <ul> Types: <li> ${pokeType} </li> </ul> </div>
   <ul id="sameTypeList"></ul>
-  <ul id="chainList"></ul>
+  <ul id="listOfEvolutionChain"></ul>
   <div>picture: <img id="pokeImg" src="${frontSrc}" </div>`;
   pokeDiv.innerHTML = htmlText;
 
@@ -161,9 +167,9 @@ const makeDiv = (name, height, weight, types, frontSrc, backSrc) => {
   pokeImg.addEventListener("mouseout", () => (pokeImg.src = frontSrc));
 
   //  defininig the press on item event
-  let typeItem = document.getElementsByTagName("li");
-  for (let x of typeItem) {
-    x.addEventListener("click", () => pokemonByType(x.innerText));
+  let typeItems = document.getElementsByTagName("li");
+  for (let typeItem of typeItems) {
+    typeItem.addEventListener("click", () => pokemonByType(typeItem.innerText));
   }
 };
 
